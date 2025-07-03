@@ -105,11 +105,15 @@ const App = () => {
       <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-violet-500 to-purple-600 rounded-2xl mb-6 shadow-lg shadow-violet-500/25">
-            <span className="text-2xl">🔐</span>
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-3xl mb-6 shadow-lg shadow-blue-500/25 overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1660732106134-f3009a1e90ea?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwyfHxwYXNzd29yZCUyMHByb3RlY3Rpb24lMjBsb2dvfGVufDB8fHxibHVlfDE3NTE1MjI4NzB8MA&ixlib=rb-4.1.0&q=85&w=80&h=80"
+              alt="AI Password Tester Logo" 
+              className="w-full h-full object-cover"
+            />
           </div>
           <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-4">
-            Password Strength Intelligence
+            AI Password Tester
           </h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
             Powered by Google Gemini AI - Advanced password security analysis with real-time threat assessment
@@ -126,7 +130,9 @@ const App = () => {
               <div className="glass-card p-8">
                 <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
                   <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-purple-600 rounded-lg mr-3 flex items-center justify-center">
-                    <span className="text-sm">🔍</span>
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                   </div>
                   Password Analysis
                 </h2>
@@ -150,7 +156,13 @@ const App = () => {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-4 top-4 text-gray-400 hover:text-white transition-colors duration-200"
                     >
-                      {showPassword ? '🙈' : '👁️'}
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {showPassword ? (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                        ) : (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        )}
+                      </svg>
                     </button>
                   </div>
                 </div>
@@ -168,7 +180,9 @@ const App = () => {
                     </div>
                   ) : (
                     <div className="flex items-center justify-center">
-                      <span className="mr-2">🔍</span>
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
                       Analyze Password
                     </div>
                   )}
@@ -180,7 +194,9 @@ const App = () => {
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-2xl font-semibold text-white flex items-center">
                     <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg mr-3 flex items-center justify-center">
-                      <span className="text-sm">📊</span>
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
                     </div>
                     Analysis History
                   </h3>
@@ -197,7 +213,9 @@ const App = () => {
                 {history.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 bg-gray-800/50 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                      <span className="text-2xl opacity-50">📝</span>
+                      <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
                     </div>
                     <p className="text-gray-400">
                       No password analyses yet. Start by analyzing a password above!
@@ -244,7 +262,9 @@ const App = () => {
                 <div className="glass-card p-8">
                   <h3 className="text-2xl font-semibold text-white mb-6 flex items-center">
                     <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-green-600 rounded-lg mr-3 flex items-center justify-center">
-                      <span className="text-sm">⚡</span>
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
                     </div>
                     Analysis Results
                   </h3>
@@ -269,7 +289,9 @@ const App = () => {
                   {analysis.weaknesses && analysis.weaknesses.length > 0 && (
                     <div className="mb-8">
                       <h4 className="text-lg font-semibold text-red-400 mb-4 flex items-center">
-                        <span className="mr-2">🚨</span>
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
                         Identified Weaknesses
                       </h4>
                       <ul className="space-y-2">
@@ -287,7 +309,9 @@ const App = () => {
                   {analysis.crack_time && Object.keys(analysis.crack_time).length > 0 && (
                     <div className="mb-8">
                       <h4 className="text-lg font-semibold text-amber-400 mb-4 flex items-center">
-                        <span className="mr-2">⏱️</span>
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         Crack Time Estimates
                       </h4>
                       <div className="grid grid-cols-1 gap-3">
@@ -307,7 +331,9 @@ const App = () => {
                   {analysis.suggestions && analysis.suggestions.length > 0 && (
                     <div className="mb-8">
                       <h4 className="text-lg font-semibold text-emerald-400 mb-4 flex items-center">
-                        <span className="mr-2">💡</span>
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
                         Improvement Suggestions
                       </h4>
                       <ul className="space-y-2">
@@ -325,7 +351,9 @@ const App = () => {
                   {analysis.explanation && (
                     <div>
                       <h4 className="text-lg font-semibold text-blue-400 mb-4 flex items-center">
-                        <span className="mr-2">📖</span>
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
                         Detailed Explanation
                       </h4>
                       <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-lg">
@@ -337,7 +365,9 @@ const App = () => {
               ) : (
                 <div className="glass-card p-8 text-center">
                   <div className="w-20 h-20 bg-gray-800/50 rounded-3xl mx-auto mb-6 flex items-center justify-center">
-                    <span className="text-3xl opacity-50">🔐</span>
+                    <svg className="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
                   </div>
                   <h3 className="text-xl font-semibold text-gray-300 mb-3">Ready to Analyze</h3>
                   <p className="text-gray-400">

