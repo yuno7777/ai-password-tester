@@ -92,6 +92,9 @@ async def analyze_password_with_gemini(password: str, session_id: str) -> dict:
             contents=prompt
         )
         
+        print(f"Gemini response: {response}")
+        print(f"Response text: {response.text}")
+        
         # Parse the JSON response
         import json
         try:
@@ -99,7 +102,9 @@ async def analyze_password_with_gemini(password: str, session_id: str) -> dict:
             response_text = response.text
             analysis_data = json.loads(response_text)
             return analysis_data
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as je:
+            print(f"JSON decode error: {je}")
+            print(f"Raw response text: {response_text}")
             # Fallback if JSON parsing fails
             return {
                 "strength_score": 50,
