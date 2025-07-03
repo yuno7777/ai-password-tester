@@ -7,7 +7,7 @@ from datetime import datetime
 import uuid
 import asyncio
 from dotenv import load_dotenv
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+from google import genai
 
 # Load environment variables
 load_dotenv()
@@ -50,26 +50,12 @@ class PasswordAnalysisResponse(BaseModel):
 async def analyze_password_with_gemini(password: str, session_id: str) -> dict:
     """Analyze password using Gemini API"""
     try:
-        # Create Gemini chat instance
-        chat = LlmChat(
-            api_key=GEMINI_API_KEY,
-            session_id=session_id,
-            system_message="""You are a cybersecurity expert specializing in password analysis. 
-            Analyze passwords and provide detailed security assessments. Always respond in valid JSON format with the following structure:
-            {
-                "strength_score": <integer 0-100>,
-                "strength_level": "<weak|moderate|strong>",
-                "weaknesses": ["<weakness1>", "<weakness2>"],
-                "crack_time": {
-                    "brute_force": "<time estimate>",
-                    "dictionary_attack": "<time estimate>",
-                    "rainbow_table": "<time estimate>"
-                },
-                "suggestions": ["<suggestion1>", "<suggestion2>"],
-                "explanation": "<detailed explanation of the analysis>"
-            }"""
-        ).with_model("gemini", "gemini-1.5-flash")
-
+        # Initialize the Gemini client
+        genai.configure(api_key=GEMINI_API_KEY)
+        
+        # Create a model instance
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        
         # Create analysis prompt
         prompt = f"""Analyze this password for security strength: "{password}"
 
@@ -88,17 +74,29 @@ async def analyze_password_with_gemini(password: str, session_id: str) -> dict:
         - Personal information patterns
         - Repeated characters or sequences
 
-        Respond only in valid JSON format."""
-
-        user_message = UserMessage(text=prompt)
+        Respond only in valid JSON format with the following structure:
+        {
+            "strength_score": <integer 0-100>,
+            "strength_level": "<weak|moderate|strong>",
+            "weaknesses": ["<weakness1>", "<weakness2>"],
+            "crack_time": {
+                "brute_force": "<time estimate>",
+                "dictionary_attack": "<time estimate>",
+                "rainbow_table": "<time estimate>"
+            },
+            "suggestions": ["<suggestion1>", "<suggestion2>"],
+            "explanation": "<detailed explanation of the analysis>"
+        }"""
         
         # Get response from Gemini
-        response = await chat.send_message(user_message)
+        response = await asyncio.to_thread(model.generate_content, prompt)
         
         # Parse the JSON response
         import json
         try:
-            analysis_data = json.loads(response)
+            # Extract text from response
+            response_text = response.text
+            analysis_data = json.loads(response_text)
             return analysis_data
         except json.JSONDecodeError:
             # Fallback if JSON parsing fails
