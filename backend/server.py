@@ -188,7 +188,12 @@ async def get_analysis_history(session_id: str):
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "gemini_configured": bool(GEMINI_API_KEY)}
+    gemini_key = os.environ.get('GEMINI_API_KEY')
+    return {
+        "status": "healthy", 
+        "gemini_configured": bool(gemini_key),
+        "gemini_key_length": len(gemini_key) if gemini_key else 0
+    }
 
 if __name__ == "__main__":
     import uvicorn
