@@ -54,36 +54,26 @@ async def analyze_password_with_gemini(password: str, session_id: str) -> dict:
         client = genai.Client(api_key=GEMINI_API_KEY)
         
         # Create analysis prompt
-        prompt = f"""Analyze this password for security strength: "{password}"
+        prompt = f"""You are a cybersecurity expert. Analyze this password: "{password}"
 
-        Please provide a comprehensive security analysis including:
-        1. Overall strength score (0-100)
-        2. Strength level (weak/moderate/strong)
-        3. Specific weaknesses found
-        4. Estimated crack time for different attack methods
-        5. Suggestions for improvement
-        6. Detailed explanation of the analysis
+Return ONLY a valid JSON object with this exact structure (no markdown, no additional text):
 
-        Consider factors like:
-        - Length and complexity
-        - Character variety (uppercase, lowercase, numbers, symbols)
-        - Common patterns or dictionary words
-        - Personal information patterns
-        - Repeated characters or sequences
+{{
+  "strength_score": 25,
+  "strength_level": "weak",
+  "weaknesses": ["Too short", "Common dictionary word", "Sequential numbers"],
+  "crack_time": {{
+    "brute_force": "Seconds",
+    "dictionary_attack": "Instant", 
+    "rainbow_table": "Instant"
+  }},
+  "suggestions": ["Use at least 12 characters", "Mix uppercase, lowercase, numbers, symbols", "Avoid dictionary words"],
+  "explanation": "This password is weak because it contains common patterns and is easily guessable."
+}}
 
-        Respond only in valid JSON format with the following structure:
-        {{
-            "strength_score": <integer 0-100>,
-            "strength_level": "<weak|moderate|strong>",
-            "weaknesses": ["<weakness1>", "<weakness2>"],
-            "crack_time": {{
-                "brute_force": "<time estimate>",
-                "dictionary_attack": "<time estimate>",
-                "rainbow_table": "<time estimate>"
-            }},
-            "suggestions": ["<suggestion1>", "<suggestion2>"],
-            "explanation": "<detailed explanation of the analysis>"
-        }}"""
+Analyze considering: length, character variety, patterns, dictionary words, predictability.
+Score: 0-30=weak, 31-70=moderate, 71-100=strong.
+Return only the JSON object."""
         
         # Get response from Gemini
         response = await asyncio.to_thread(
