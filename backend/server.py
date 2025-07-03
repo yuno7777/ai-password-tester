@@ -51,10 +51,7 @@ async def analyze_password_with_gemini(password: str, session_id: str) -> dict:
     """Analyze password using Gemini API"""
     try:
         # Initialize the Gemini client
-        genai.configure(api_key=GEMINI_API_KEY)
-        
-        # Create a model instance
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        client = genai.Client(api_key=GEMINI_API_KEY)
         
         # Create analysis prompt
         prompt = f"""Analyze this password for security strength: "{password}"
@@ -75,21 +72,25 @@ async def analyze_password_with_gemini(password: str, session_id: str) -> dict:
         - Repeated characters or sequences
 
         Respond only in valid JSON format with the following structure:
-        {
+        {{
             "strength_score": <integer 0-100>,
             "strength_level": "<weak|moderate|strong>",
             "weaknesses": ["<weakness1>", "<weakness2>"],
-            "crack_time": {
+            "crack_time": {{
                 "brute_force": "<time estimate>",
                 "dictionary_attack": "<time estimate>",
                 "rainbow_table": "<time estimate>"
-            },
+            }},
             "suggestions": ["<suggestion1>", "<suggestion2>"],
             "explanation": "<detailed explanation of the analysis>"
-        }"""
+        }}"""
         
         # Get response from Gemini
-        response = await asyncio.to_thread(model.generate_content, prompt)
+        response = await asyncio.to_thread(
+            client.models.generate_content,
+            model='gemini-1.5-flash',
+            contents=prompt
+        )
         
         # Parse the JSON response
         import json
