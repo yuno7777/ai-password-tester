@@ -6,7 +6,11 @@ import os
 from datetime import datetime
 import uuid
 import asyncio
+from dotenv import load_dotenv
 from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+# Load environment variables
+load_dotenv()
 
 app = FastAPI()
 
