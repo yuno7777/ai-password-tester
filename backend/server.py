@@ -82,31 +82,81 @@ Return only the JSON object."""
             contents=prompt
         )
         
-        print(f"Gemini response: {response}")
-        print(f"Response text: {response.text}")
-        
         # Parse the JSON response
         import json
+        import re
         try:
-            # Extract text from response
-            response_text = response.text
+            # Extract text from response and clean it
+            response_text = response.text.strip()
+            
+            # Try to extract JSON from response (in case there's extra text)
+            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            if json_match:
+                response_text = json_match.group()
+            
             analysis_data = json.loads(response_text)
-            return analysis_data
-        except json.JSONDecodeError as je:
-            print(f"JSON decode error: {je}")
-            print(f"Raw response text: {response_text}")
-            # Fallback if JSON parsing fails
+            
+            # Validate required fields
+            required_fields = ["strength_score", "strength_level", "weaknesses", "crack_time", "suggestions", "explanation"]
+            if all(field in analysis_data for field in required_fields):
+                return analysis_data
+            else:
+                raise ValueError("Missing required fields in response")
+                
+        except (json.JSONDecodeError, ValueError) as e:
+            print(f"JSON/Validation error: {e}")
+            # Create a simple analysis based on basic rules
+            password_len = len(password)
+            has_upper = any(c.isupper() for c in password)
+            has_lower = any(c.islower() for c in password)
+            has_digit = any(c.isdigit() for c in password)
+            has_special = any(not c.isalnum() for c in password)
+            
+            score = 0
+            score += min(password_len * 4, 25)  # Length (max 25)
+            score += 15 if has_upper else 0
+            score += 15 if has_lower else 0
+            score += 15 if has_digit else 0
+            score += 30 if has_special else 0
+            
+            if password_len < 8:
+                level = "weak"
+            elif score < 60:
+                level = "moderate"
+            else:
+                level = "strong"
+            
+            weaknesses = []
+            if password_len < 8:
+                weaknesses.append("Password is too short (less than 8 characters)")
+            if not has_upper:
+                weaknesses.append("Missing uppercase letters")
+            if not has_lower:
+                weaknesses.append("Missing lowercase letters")
+            if not has_digit:
+                weaknesses.append("Missing numbers")
+            if not has_special:
+                weaknesses.append("Missing special characters")
+            if password.lower() in ['password', 'admin', 'user', 'test']:
+                weaknesses.append("Uses common dictionary word")
+                
             return {
-                "strength_score": 50,
-                "strength_level": "moderate",
-                "weaknesses": ["Unable to parse detailed analysis"],
+                "strength_score": min(score, 100),
+                "strength_level": level,
+                "weaknesses": weaknesses,
                 "crack_time": {
-                    "brute_force": "Unknown",
-                    "dictionary_attack": "Unknown",
-                    "rainbow_table": "Unknown"
+                    "brute_force": "Seconds" if score < 30 else "Minutes" if score < 60 else "Years",
+                    "dictionary_attack": "Instant" if any(word in password.lower() for word in ['password', 'admin', 'user', 'test']) else "Days",
+                    "rainbow_table": "Instant" if score < 40 else "Hours"
                 },
-                "suggestions": ["Consider using a longer password with mixed characters"],
-                "explanation": "Analysis completed with limited details due to parsing error."
+                "suggestions": [
+                    "Use at least 12 characters",
+                    "Include uppercase and lowercase letters",
+                    "Add numbers and special characters",
+                    "Avoid dictionary words",
+                    "Use unique passwords for each account"
+                ],
+                "explanation": f"This password scored {min(score, 100)}/100. It's classified as {level} strength with {len(weaknesses)} identified weaknesses."
             }
     except Exception as e:
         print(f"Error analyzing password: {e}")
