@@ -72,19 +72,19 @@ const App = () => {
 
   const getStrengthColor = (level) => {
     switch (level) {
-      case 'weak': return 'bg-red-500';
-      case 'moderate': return 'bg-yellow-500';
-      case 'strong': return 'bg-green-500';
-      default: return 'bg-gray-500';
+      case 'weak': return 'bg-gradient-to-r from-red-500 to-red-600';
+      case 'moderate': return 'bg-gradient-to-r from-amber-500 to-orange-500';
+      case 'strong': return 'bg-gradient-to-r from-emerald-500 to-green-500';
+      default: return 'bg-gradient-to-r from-gray-500 to-gray-600';
     }
   };
 
   const getStrengthTextColor = (level) => {
     switch (level) {
-      case 'weak': return 'text-red-600';
-      case 'moderate': return 'text-yellow-600';
-      case 'strong': return 'text-green-600';
-      default: return 'text-gray-600';
+      case 'weak': return 'text-red-400';
+      case 'moderate': return 'text-amber-400';
+      case 'strong': return 'text-emerald-400';
+      default: return 'text-gray-400';
     }
   };
 
@@ -94,185 +94,258 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-dark-gradient">
+      {/* Background Effects */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-1/2 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            🔐 Password Strength Intelligence
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-violet-500 to-purple-600 rounded-2xl mb-6 shadow-lg shadow-violet-500/25">
+            <span className="text-2xl">🔐</span>
+          </div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-4">
+            Password Strength Intelligence
           </h1>
-          <p className="text-gray-600 text-lg">
-            Powered by Google Gemini AI - Analyze your password security instantly
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Powered by Google Gemini AI - Advanced password security analysis with real-time threat assessment
           </p>
         </div>
 
-        {/* Main Analysis Section */}
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-6">Password Analysis</h2>
+        {/* Main Content */}
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            {/* Password Input */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Enter Password to Analyze
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter your password..."
-                  onKeyPress={(e) => e.key === 'Enter' && analyzePassword()}
-                />
+            {/* Left Column - Password Input */}
+            <div className="space-y-8">
+              {/* Password Analysis Card */}
+              <div className="glass-card p-8">
+                <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-purple-600 rounded-lg mr-3 flex items-center justify-center">
+                    <span className="text-sm">🔍</span>
+                  </div>
+                  Password Analysis
+                </h2>
+                
+                {/* Password Input */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-300 mb-3">
+                    Enter Password to Analyze
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-4 py-4 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all duration-200 backdrop-blur-sm"
+                      placeholder="Enter your password..."
+                      onKeyPress={(e) => e.key === 'Enter' && analyzePassword()}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-4 text-gray-400 hover:text-white transition-colors duration-200"
+                    >
+                      {showPassword ? '🙈' : '👁️'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Analyze Button */}
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                  onClick={analyzePassword}
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transform hover:scale-[1.02] disabled:transform-none"
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {loading ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                      Analyzing...
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center">
+                      <span className="mr-2">🔍</span>
+                      Analyze Password
+                    </div>
+                  )}
                 </button>
               </div>
-            </div>
 
-            {/* Analyze Button */}
-            <button
-              onClick={analyzePassword}
-              disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
-            >
-              {loading ? '🔄 Analyzing...' : '🔍 Analyze Password'}
-            </button>
-          </div>
-
-          {/* Analysis Results */}
-          {analysis && (
-            <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
-              <h3 className="text-2xl font-semibold text-gray-800 mb-6">Analysis Results</h3>
-              
-              {/* Strength Meter */}
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700">Strength Score</span>
-                  <span className={`text-sm font-bold ${getStrengthTextColor(analysis.strength_level)}`}>
-                    {analysis.strength_score}/100 - {analysis.strength_level.toUpperCase()}
-                  </span>
+              {/* History Card */}
+              <div className="glass-card p-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-2xl font-semibold text-white flex items-center">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg mr-3 flex items-center justify-center">
+                      <span className="text-sm">📊</span>
+                    </div>
+                    Analysis History
+                  </h3>
+                  {history.length > 0 && (
+                    <button
+                      onClick={clearHistory}
+                      className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors duration-200"
+                    >
+                      Clear History
+                    </button>
+                  )}
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-4">
-                  <div 
-                    className={`h-4 rounded-full transition-all duration-500 ${getStrengthColor(analysis.strength_level)}`}
-                    style={{ width: `${analysis.strength_score}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              {/* Weaknesses */}
-              {analysis.weaknesses && analysis.weaknesses.length > 0 && (
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-red-600 mb-3">🚨 Identified Weaknesses</h4>
-                  <ul className="space-y-2">
-                    {analysis.weaknesses.map((weakness, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-red-500 mr-2">•</span>
-                        <span className="text-gray-700">{weakness}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Crack Time Estimates */}
-              {analysis.crack_time && Object.keys(analysis.crack_time).length > 0 && (
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-orange-600 mb-3">⏱️ Crack Time Estimates</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {Object.entries(analysis.crack_time).map(([method, time]) => (
-                      <div key={method} className="bg-orange-50 p-4 rounded-lg">
-                        <div className="font-semibold text-orange-800 capitalize">
-                          {method.replace('_', ' ')}
+                
+                {history.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-gray-800/50 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                      <span className="text-2xl opacity-50">📝</span>
+                    </div>
+                    <p className="text-gray-400">
+                      No password analyses yet. Start by analyzing a password above!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-80 overflow-y-auto custom-scrollbar">
+                    {history.map((item, index) => (
+                      <div key={index} className="bg-gray-800/30 border border-gray-700/30 rounded-lg p-4 hover:bg-gray-800/50 transition-all duration-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="font-medium text-gray-200">
+                            Password: {item.password_masked}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(item.timestamp).toLocaleString()}
+                          </span>
                         </div>
-                        <div className="text-orange-700">{time}</div>
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center flex-1">
+                            <div className="w-20 bg-gray-700 rounded-full h-2 mr-3">
+                              <div 
+                                className={`h-2 rounded-full ${getStrengthColor(item.strength_level)} transition-all duration-500`}
+                                style={{ width: `${item.strength_score}%` }}
+                              ></div>
+                            </div>
+                            <span className={`text-sm font-medium ${getStrengthTextColor(item.strength_level)}`}>
+                              {item.strength_score}/100
+                            </span>
+                          </div>
+                          <span className={`text-xs px-2 py-1 rounded-full ${item.strength_level === 'weak' ? 'bg-red-500/20 text-red-300' : item.strength_level === 'moderate' ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'}`}>
+                            {item.strength_level.toUpperCase()}
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
-
-              {/* Suggestions */}
-              {analysis.suggestions && analysis.suggestions.length > 0 && (
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-green-600 mb-3">💡 Improvement Suggestions</h4>
-                  <ul className="space-y-2">
-                    {analysis.suggestions.map((suggestion, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-green-500 mr-2">✓</span>
-                        <span className="text-gray-700">{suggestion}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Explanation */}
-              {analysis.explanation && (
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-blue-600 mb-3">📖 Detailed Explanation</h4>
-                  <p className="text-gray-700 leading-relaxed">{analysis.explanation}</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          )}
 
-          {/* History Section */}
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-semibold text-gray-800">Analysis History</h3>
-              {history.length > 0 && (
-                <button
-                  onClick={clearHistory}
-                  className="text-red-600 hover:text-red-800 text-sm font-medium"
-                >
-                  Clear History
-                </button>
-              )}
-            </div>
-            
-            {history.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">
-                No password analyses yet. Start by analyzing a password above!
-              </p>
-            ) : (
-              <div className="space-y-4">
-                {history.map((item, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="font-medium text-gray-800">
-                        Password: {item.password_masked}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        {new Date(item.timestamp).toLocaleString()}
+            {/* Right Column - Analysis Results */}
+            <div>
+              {analysis ? (
+                <div className="glass-card p-8">
+                  <h3 className="text-2xl font-semibold text-white mb-6 flex items-center">
+                    <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-green-600 rounded-lg mr-3 flex items-center justify-center">
+                      <span className="text-sm">⚡</span>
+                    </div>
+                    Analysis Results
+                  </h3>
+                  
+                  {/* Strength Meter */}
+                  <div className="mb-8">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-sm font-medium text-gray-300">Strength Score</span>
+                      <span className={`text-sm font-bold ${getStrengthTextColor(analysis.strength_level)}`}>
+                        {analysis.strength_score}/100 - {analysis.strength_level.toUpperCase()}
                       </span>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center">
-                        <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                          <div 
-                            className={`h-2 rounded-full ${getStrengthColor(item.strength_level)}`}
-                            style={{ width: `${item.strength_score}%` }}
-                          ></div>
-                        </div>
-                        <span className={`text-sm font-medium ${getStrengthTextColor(item.strength_level)}`}>
-                          {item.strength_score}/100
-                        </span>
-                      </div>
-                      <span className={`text-sm px-2 py-1 rounded ${getStrengthTextColor(item.strength_level)} bg-${item.strength_level === 'weak' ? 'red' : item.strength_level === 'moderate' ? 'yellow' : 'green'}-100`}>
-                        {item.strength_level.toUpperCase()}
-                      </span>
+                    <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden">
+                      <div 
+                        className={`h-3 rounded-full transition-all duration-1000 ${getStrengthColor(analysis.strength_level)} shadow-lg`}
+                        style={{ width: `${analysis.strength_score}%` }}
+                      ></div>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+
+                  {/* Weaknesses */}
+                  {analysis.weaknesses && analysis.weaknesses.length > 0 && (
+                    <div className="mb-8">
+                      <h4 className="text-lg font-semibold text-red-400 mb-4 flex items-center">
+                        <span className="mr-2">🚨</span>
+                        Identified Weaknesses
+                      </h4>
+                      <ul className="space-y-2">
+                        {analysis.weaknesses.map((weakness, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="text-red-400 mr-3 mt-1">•</span>
+                            <span className="text-gray-300">{weakness}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Crack Time Estimates */}
+                  {analysis.crack_time && Object.keys(analysis.crack_time).length > 0 && (
+                    <div className="mb-8">
+                      <h4 className="text-lg font-semibold text-amber-400 mb-4 flex items-center">
+                        <span className="mr-2">⏱️</span>
+                        Crack Time Estimates
+                      </h4>
+                      <div className="grid grid-cols-1 gap-3">
+                        {Object.entries(analysis.crack_time).map(([method, time]) => (
+                          <div key={method} className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-lg">
+                            <div className="font-semibold text-amber-300 capitalize text-sm">
+                              {method.replace('_', ' ')}
+                            </div>
+                            <div className="text-amber-200 text-lg font-bold">{time}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Suggestions */}
+                  {analysis.suggestions && analysis.suggestions.length > 0 && (
+                    <div className="mb-8">
+                      <h4 className="text-lg font-semibold text-emerald-400 mb-4 flex items-center">
+                        <span className="mr-2">💡</span>
+                        Improvement Suggestions
+                      </h4>
+                      <ul className="space-y-2">
+                        {analysis.suggestions.map((suggestion, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="text-emerald-400 mr-3 mt-1">✓</span>
+                            <span className="text-gray-300">{suggestion}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Explanation */}
+                  {analysis.explanation && (
+                    <div>
+                      <h4 className="text-lg font-semibold text-blue-400 mb-4 flex items-center">
+                        <span className="mr-2">📖</span>
+                        Detailed Explanation
+                      </h4>
+                      <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-lg">
+                        <p className="text-gray-300 leading-relaxed">{analysis.explanation}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="glass-card p-8 text-center">
+                  <div className="w-20 h-20 bg-gray-800/50 rounded-3xl mx-auto mb-6 flex items-center justify-center">
+                    <span className="text-3xl opacity-50">🔐</span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-300 mb-3">Ready to Analyze</h3>
+                  <p className="text-gray-400">
+                    Enter a password in the input field and click "Analyze Password" to see detailed security analysis.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
